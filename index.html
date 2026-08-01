@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pencatatan Uang</title>
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="style.css">
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+</head>
+
+<body>
+
+    <div class="container">
+
+        <!-- Header -->
+        <header class="header">
+            <h1><i class="fa-solid fa-wallet"></i> Pencatatan Uang</h1>
+            <p>Selamat datang di pencatatan uang by sevha.</p>
+        </header>
+
+        <!-- Dashboard -->
+        <section class="summary">
+
+            <div class="card saldo-card">
+                <i class="fa-solid fa-wallet"></i>
+                <h3>Saldo</h3>
+                <h2 id="saldo">Rp 0</h2>
+            </div>
+
+            <div class="card masuk-card">
+                <i class="fa-solid fa-arrow-trend-up"></i>
+                <h3>Pemasukan</h3>
+                <h2 id="masuk">Rp 0</h2>
+            </div>
+
+            <div class="card keluar-card">
+                <i class="fa-solid fa-arrow-trend-down"></i>
+                <h3>Pengeluaran</h3>
+                <h2 id="keluar">Rp 0</h2>
+            </div>
+
+        </section>
+
+        <!-- Form -->
+        <section class="form-card">
+
+            <h2>Tambah Transaksi</h2>
+
+            <form id="form">
+
+                <input
+                    type="text"
+                    id="keterangan"
+                    placeholder="Keterangan"
+                    required>
+
+                <input
+                    type="number"
+                    id="nominal"
+                    placeholder="Nominal"
+                    required>
+
+                <select id="jenis">
+                    <option value="masuk">Pemasukan</option>
+                    <option value="keluar">Pengeluaran</option>
+                </select>
+
+                <button type="submit">
+                    <i class="fa-solid fa-plus"></i>
+                    Tambah
+                </button>
+
+            </form>
+
+        </section>
+
+        <!-- Riwayat -->
+        <section class="table-card">
+
+            <h2>Riwayat Transaksi</h2>
+
+            <div class="table-responsive">
+
+                <table>
+
+                    <thead>
+
+                        <tr>
+                            <th>Tanggal</th>
+                            <th>Keterangan</th>
+                            <th>Jenis</th>
+                            <th>Nominal</th>
+                            <th>Aksi</th>
+                        </tr>
+
+                    </thead>
+
+                    <tbody id="list">
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </section>
+
+    </div>
+
+    <!-- JavaScript -->
+    <script src="script.js"></script>
+
+</body>
+
+</html>

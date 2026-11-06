@@ -4,13 +4,14 @@
 // ===============================
 
 const firebaseConfig = {
-    apiKey: "ISI_API_KEY",
-    authDomain: "ISI_AUTH_DOMAIN",
-    databaseURL: "ISI_DATABASE_URL",
-    projectId: "ISI_PROJECT_ID",
-    storageBucket: "ISI_STORAGE_BUCKET",
-    messagingSenderId: "ISI_MESSAGING_SENDER_ID",
-    appId: "ISI_APP_ID"
+     apiKey: "AIzaSyAQa2y4UzNychTyDdjnDZYiYr82TUczfUY",
+  authDomain: "catatankeuangan-77e20.firebaseapp.com",
+  databaseURL: "https://catatankeuangan-77e20-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "catatankeuangan-77e20",
+  storageBucket: "catatankeuangan-77e20.firebasestorage.app",
+  messagingSenderId: "854497694996",
+  appId: "1:854497694996:web:58d9746942bfafb76d9e01",
+  measurementId: "G-8JZ9BQ10K7"
 };
 
 // ===============================

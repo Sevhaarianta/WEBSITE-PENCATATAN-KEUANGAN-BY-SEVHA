@@ -1,273 +1,269 @@
-// ===============================
-// LOCAL STORAGE
-// ===============================
-
-let data = JSON.parse(localStorage.getItem("transaksi")) || [];
 
 // ===============================
-// FORMAT RUPIAH
+// KONFIGURASI FIREBASE
 // ===============================
 
-function rupiah(angka) {
-    return "Rp " + angka.toLocaleString("id-ID");
-}
-
-// ===============================
-// SIMPAN DATA
-// ===============================
-
-function simpanData() {
-    localStorage.setItem("transaksi", JSON.stringify(data));
-}
-
-// ===============================
-// TAMPILKAN DATA
-// ===============================
-
-function render() {
-
-    const list = document.getElementById("list");
-
-    let totalMasuk = 0;
-    let totalKeluar = 0;
-
-    list.innerHTML = "";
-
-    data.forEach((item, index) => {
-
-        if (item.jenis === "masuk") {
-            totalMasuk += item.nominal;
-        } else {
-            totalKeluar += item.nominal;
-        }
-
-        list.innerHTML += `
-        <tr>
-
-            <td>${item.tanggal}</td>
-
-            <td>${item.keterangan}</td>
-
-            <td>
-                <span class="badge ${item.jenis}">
-                    ${item.jenis === "masuk" ? "Pemasukan" : "Pengeluaran"}
-                </span>
-            </td>
-
-            <td>${rupiah(item.nominal)}</td>
-
-            <td>
-                <button class="delete" onclick="hapus(${index})">
-                    Hapus
-                </button>
-            </td>
-
-        </tr>
-        `;
-
-    });
-
-    document.getElementById("masuk").textContent = rupiah(totalMasuk);
-    document.getElementById("keluar").textContent = rupiah(totalKeluar);
-    document.getElementById("saldo").textContent = rupiah(totalMasuk - totalKeluar);
-
-}
-
-// ===============================
-// TAMBAH DATA
-// ===============================
-
-document.getElementById("form").addEventListener("submit", function (e) {
-
-    e.preventDefault();
-
-    const keterangan = document.getElementById("keterangan").value.trim();
-    const nominal = Number(document.getElementById("nominal").value);
-    const jenis = document.getElementById("jenis").value;
-
-    if (keterangan === "" || nominal <= 0) {
-        alert("Silakan isi data dengan benar.");
-        return;
-    }
-
-    const transaksi = {
-
-        tanggal: new Date().toLocaleDateString("id-ID"),
-
-        keterangan: keterangan,
-
-        nominal: nominal,
-
-        jenis: jenis
-
-    };
-
-    data.push(transaksi);
-
-    simpanData();
-
-    render();
-
-    this.reset();
-
-});
-
-// ===============================
-// HAPUS DATA
-// ===============================
-
-function hapus(index) {
-
-    if (confirm("Yakin ingin menghapus transaksi ini?")) {
-
-        data.splice(index, 1);
-
-        simpanData();
-
-        render();
-
-    }
-
-}
-
-// ===============================
-// LOAD PERTAMA
-// ===============================
-
-render();
-
-// ===============================
-// KONFIGURASI FIREBASE (UBAH DI SINI!)
-// ===============================
-// Silakan ganti nilai di bawah ini dengan konfigurasi dari Firebase Console Anda sendiri
 const firebaseConfig = {
-    apiKey: "AIzaSy...",
-    authDomain: "://firebaseapp.com",
-    databaseURL: "https://console.firebase.google.com/project/catatankeuangan-77e20/database/catatankeuangan-77e20-default-rtdb/data/~2F", // <-- PASTIIN URL INI BENAR
-    projectId: "catatankeuangan-xxxx",
-    storageBucket: "://appspot.com",
-    messagingSenderId: "1234567890",
-    appId: "1:12345:web:abcde"
+    apiKey: "ISI_API_KEY",
+    authDomain: "ISI_AUTH_DOMAIN",
+    databaseURL: "ISI_DATABASE_URL",
+    projectId: "ISI_PROJECT_ID",
+    storageBucket: "ISI_STORAGE_BUCKET",
+    messagingSenderId: "ISI_MESSAGING_SENDER_ID",
+    appId: "ISI_APP_ID"
 };
 
-// Inisialisasi Firebase
+// ===============================
+// INISIALISASI FIREBASE
+// ===============================
+
 firebase.initializeApp(firebaseConfig);
+
 const database = firebase.database();
+const transaksiRef = database.ref("transaksi");
 
 let data = [];
 
 // ===============================
-// AMBIL DATA DARI FIREBASE (REALTIME)
-// ===============================
-// Fungsi ini akan otomatis terpanggil setiap ada perubahan data di Firebase
-database.ref("transaksi").on("value", (snapshot) => {
-    const firebaseData = snapshot.val();
-    data = [];
-    
-    if (firebaseData) {
-        // Mengubah objek Firebase menjadi array agar cocok dengan kode render Anda
-        Object.keys(firebaseData).forEach((key) => {
-            data.push({
-                id: key, // kita simpan ID unik dari Firebase untuk keperluan hapus data
-                ...firebaseData[key]
-            });
-        });
-    }
-    
-    render();
-});
-
-// ===============================
 // FORMAT RUPIAH
 // ===============================
+
 function rupiah(angka) {
-    return "Rp " + angka.toLocaleString("id-ID");
+    return "Rp " + Number(angka).toLocaleString("id-ID");
 }
 
 // ===============================
 // TAMPILKAN DATA
 // ===============================
+
 function render() {
+
     const list = document.getElementById("list");
+
     let totalMasuk = 0;
     let totalKeluar = 0;
 
     list.innerHTML = "";
 
     data.forEach((item) => {
+
         if (item.jenis === "masuk") {
-            totalMasuk += item.nominal;
+            totalMasuk += Number(item.nominal);
         } else {
-            totalKeluar += item.nominal;
+            totalKeluar += Number(item.nominal);
         }
 
         list.innerHTML += `
         <tr>
             <td>${item.tanggal}</td>
-            <td>${item.keterangan}</td>
+            <td>${escapeHTML(item.keterangan)}</td>
+
             <td>
                 <span class="badge ${item.jenis}">
                     ${item.jenis === "masuk" ? "Pemasukan" : "Pengeluaran"}
                 </span>
             </td>
+
             <td>${rupiah(item.nominal)}</td>
+
             <td>
-                <!-- Fungsi hapus sekarang mengirimkan ID unik Firebase, bukan index array -->
+                <button onclick="edit('${item.id}')">
+                    Edit
+                </button>
+
                 <button class="delete" onclick="hapus('${item.id}')">
                     Hapus
                 </button>
             </td>
         </tr>
         `;
+
     });
 
     document.getElementById("masuk").textContent = rupiah(totalMasuk);
+
     document.getElementById("keluar").textContent = rupiah(totalKeluar);
-    document.getElementById("saldo").textContent = rupiah(totalMasuk - totalKeluar);
+
+    document.getElementById("saldo").textContent =
+        rupiah(totalMasuk - totalKeluar);
 }
 
 // ===============================
-// TAMBAH DATA (SIMPAN KE FIREBASE)
+// AMANKAN TAMPILAN TEKS
 // ===============================
-document.getElementById("form").addEventListener("submit", function (e) {
+
+function escapeHTML(teks) {
+    return String(teks).replace(/[&<>"']/g, function (char) {
+        return {
+            "&": "&amp;",
+            "<": "&lt;",
+            ">": "&gt;",
+            '"': "&quot;",
+            "'": "&#039;"
+        }[char];
+    });
+}
+
+// ===============================
+// AMBIL DATA REALTIME
+// ===============================
+
+transaksiRef.on("value", (snapshot) => {
+
+    const firebaseData = snapshot.val();
+
+    data = [];
+
+    if (firebaseData) {
+
+        Object.entries(firebaseData).forEach(([key, value]) => {
+
+            data.push({
+                id: key,
+                ...value
+            });
+
+        });
+
+    }
+
+    render();
+
+}, (error) => {
+
+    alert("Gagal mengambil data: " + error.message);
+
+});
+
+// ===============================
+// TAMBAH TRANSAKSI
+// ===============================
+
+document.getElementById("form").addEventListener("submit", function(e) {
+
     e.preventDefault();
 
-    const keterangan = document.getElementById("keterangan").value.trim();
-    const nominal = Number(document.getElementById("nominal").value);
-    const jenis = document.getElementById("jenis").value;
+    const keterangan =
+        document.getElementById("keterangan").value.trim();
 
-    if (keterangan === "" || nominal <= 0) {
+    const nominal =
+        Number(document.getElementById("nominal").value);
+
+    const jenis =
+        document.getElementById("jenis").value;
+
+    if (!keterangan || !Number.isSafeInteger(nominal) || nominal <= 0) {
+
         alert("Silakan isi data dengan benar.");
+
         return;
     }
 
     const transaksi = {
+
         tanggal: new Date().toLocaleDateString("id-ID"),
+
         keterangan: keterangan,
+
         nominal: nominal,
+
         jenis: jenis
+
     };
 
-    // Menyimpan langsung ke Firebase menggunakan fungsi push()
-    database.ref("transaksi").push(transaksi)
+    transaksiRef.push(transaksi)
         .then(() => {
+
             this.reset();
+
         })
         .catch((error) => {
-            alert("Gagal menyimpan data ke Firebase: " + error.message);
+
+            alert("Gagal menyimpan: " + error.message);
+
         });
+
 });
 
 // ===============================
-// HAPUS DATA DARI FIREBASE
+// EDIT TRANSAKSI
 // ===============================
-function hapus(id) {
-    if (confirm("Yakin ingin menghapus transaksi ini?")) {
-        // Menghapus data spesifik berdasarkan ID unik di Firebase
-        database.ref("transaksi/" + id).remove()
-            .catch((error) => {
-                alert("Gagal menghapus data: " + error.message);
-            });
+
+function edit(id) {
+
+    const item = data.find((transaksi) => transaksi.id === id);
+
+    if (!item) return;
+
+    const keteranganBaru = prompt(
+        "Ubah keterangan:",
+        item.keterangan
+    );
+
+    if (keteranganBaru === null) return;
+
+    if (!keteranganBaru.trim()) {
+        alert("Keterangan tidak boleh kosong.");
+        return;
     }
+
+    const nominalBaru = prompt(
+        "Ubah nominal:",
+        item.nominal
+    );
+
+    if (nominalBaru === null) return;
+
+    const nominal = Number(nominalBaru);
+
+    if (!Number.isSafeInteger(nominal) || nominal <= 0) {
+        alert("Nominal tidak valid.");
+        return;
+    }
+
+    const jenisBaru = prompt(
+        "Jenis transaksi: masuk / keluar",
+        item.jenis
+    );
+
+    if (jenisBaru === null) return;
+
+    if (!["masuk", "keluar"].includes(jenisBaru)) {
+        alert("Jenis transaksi tidak valid.");
+        return;
+    }
+
+    transaksiRef.child(id).update({
+
+        keterangan: keteranganBaru.trim(),
+
+        nominal: nominal,
+
+        jenis: jenisBaru
+
+    }).catch((error) => {
+
+        alert("Gagal mengedit: " + error.message);
+
+    });
+
 }
 
+// ===============================
+// HAPUS TRANSAKSI
+// ===============================
+
+function hapus(id) {
+
+    if (!confirm("Yakin ingin menghapus transaksi ini?")) {
+        return;
+    }
+
+    transaksiRef.child(id).remove()
+        .catch((error) => {
+
+            alert("Gagal menghapus: " + error.message);
+
+        });
+
+}
